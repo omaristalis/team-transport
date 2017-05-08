@@ -17,6 +17,7 @@ namespace ClarifaiTest
 	{
 		static VideoCaptureDevice videoSource = null;
 		static System.Drawing.Bitmap lastBitmap = new System.Drawing.Bitmap(1, 1);
+		static object bitmapLock = new object();
 
 		private static MemoryStream CaptureCamera()
 		{
@@ -24,7 +25,7 @@ namespace ClarifaiTest
 				return new MemoryStream();
 
 			MemoryStream imageStream = new MemoryStream();
-			lock (lastBitmap)
+			lock (bitmapLock)
 			{
 				lastBitmap.Save(imageStream, System.Drawing.Imaging.ImageFormat.Jpeg);
 			}
@@ -36,7 +37,7 @@ namespace ClarifaiTest
 
 		private static void VideoSource_NewFrame(object sender, AForge.Video.NewFrameEventArgs eventArgs)
 		{
-			lock (lastBitmap)
+			lock (bitmapLock)
 			{
 				lastBitmap.Dispose();
 				lastBitmap = new System.Drawing.Bitmap(eventArgs.Frame);
@@ -84,7 +85,10 @@ namespace ClarifaiTest
 				var option = Console.ReadLine();
 
 				if (option == "0")
+				{
+					videoSource.Stop();
 					return;
+				}
 
 				var image = CaptureCamera();
 
