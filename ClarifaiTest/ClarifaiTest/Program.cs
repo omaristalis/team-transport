@@ -10,6 +10,7 @@ using Windows.Media.Capture;
 using Windows.Media.MediaProperties;
 using Windows.Graphics.Imaging;
 using AForge.Video.DirectShow;
+using Newtonsoft.Json;
 
 namespace ClarifaiTest
 {
@@ -19,8 +20,9 @@ namespace ClarifaiTest
 		static System.Drawing.Bitmap lastBitmap = new System.Drawing.Bitmap(1, 1);
 		static object bitmapLock = new object();
 		static bool shutdown = false;
+        static private string BaseUrl = "http://webapplication120170507042553.azurewebsites.net/api/carriages"; //"http://localhost:1331/api/values"; // "http://webapplication120170507042553.azurewebsites.net/api/values";
 
-		private static MemoryStream CaptureCamera()
+        private static MemoryStream CaptureCamera()
 		{
 			if (lastBitmap == null)
 				return new MemoryStream();
@@ -77,7 +79,15 @@ namespace ClarifaiTest
 				try
 				{
 					var busyType = ClarifaiImage.ClarifaiTaggingFromStream(image);
-					Console.WriteLine("Image tagged as {0}", busyType.ToString());
+
+				    using (var client = new HttpClient())
+				    {
+                        var carriageDto = new CarriageDto() { Id = 1, Status = (int)busyType };
+                        var content = new StringContent(JsonConvert.SerializeObject(carriageDto), Encoding.UTF8, "application/json");
+                        var response = client.PutAsync(BaseUrl + "/" + 1, content).Result;
+                    }
+
+				    Console.WriteLine("Image tagged as {0}", busyType.ToString());
 				}
 				catch (InvalidDataException)
 				{
