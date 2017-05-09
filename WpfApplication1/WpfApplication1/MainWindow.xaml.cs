@@ -83,16 +83,17 @@ namespace WpfApplication1
             {
                 try
                 {
-                    var client = new HttpClient();
-
-                    DrawRectangle(client, 1, this.LayoutRoot0);
-
-                    await Task.Delay(2000);
+                    using (var client = new HttpClient())
+                    {
+                        DrawRectangle(client, 1, this.LayoutRoot0);
+                    }
                 }
                 catch (Exception ex)
                 {
                     Console.WriteLine(ex.StackTrace);
                 }
+
+                await Task.Delay(2000);
             }
         }
     }

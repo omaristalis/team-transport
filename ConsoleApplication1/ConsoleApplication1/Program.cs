@@ -13,7 +13,7 @@ namespace ConsoleApplication1
 
     class Program
     {
-        static private string BaseUrl = "http://webapplication120170507042553.azurewebsites.net/api/carriages"; //"http://localhost:1331/api/values"; // "http://webapplication120170507042553.azurewebsites.net/api/values";
+        static private string BaseUrl = "http://webapplication120170507042553.azurewebsites.net/api/carriages";
 
         static void Main(string[] args)
         {
