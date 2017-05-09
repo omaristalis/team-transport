@@ -85,8 +85,7 @@ namespace WpfApplication1
                 {
                     var client = new HttpClient();
 
-                    DrawRectangle(client, 0, this.LayoutRoot0);
-                    DrawRectangle(client, 1, this.LayoutRoot1);
+                    DrawRectangle(client, 1, this.LayoutRoot0);
 
                     await Task.Delay(2000);
                 }
