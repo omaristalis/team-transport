@@ -18,6 +18,42 @@ namespace ClarifaiTest
 			Heavy
 		};
 
+		public static BusyType StringToBusyType(string type)
+		{
+			switch (type)
+			{
+				case "Hilt Light":
+					return BusyType.Light;
+
+				case "Hilt Medium":
+					return BusyType.Medium;
+
+				case "Hilt Heavy":
+					return BusyType.Heavy;
+
+				default:
+					throw new ArgumentException();
+			}
+		}
+
+		public static string BusyTypeToString(BusyType type)
+		{
+			switch (type)
+			{
+				case BusyType.Light:
+					return "Hilt Light";
+
+				case BusyType.Medium:
+					return "Hilt Medium";
+
+				case BusyType.Heavy:
+					return "Hilt Heavy";
+
+				default:
+					throw new ArgumentException();
+			}
+		}
+
 		public static BusyType ClarifaiTaggingFromFile(string filename)
 		{
 			// Convert the stream to a byte array and convert it to base 64 encoding
@@ -35,7 +71,7 @@ namespace ClarifaiTest
 		public static BusyType ClarifaiTaggingFromStream(MemoryStream image)
 		{
 			string ACCESS_TOKEN = ConfigurationManager.AppSettings["apiKey"];
-			const string CLARIFAI_API_URL = "https://api.clarifai.com/v2/models/BC%20Carriage/outputs";
+			const string CLARIFAI_API_URL = "https://api.clarifai.com/v2/models/Hilt%20Carriage/outputs";
 
 			using (HttpClient client = new HttpClient())
 			{
@@ -82,21 +118,7 @@ namespace ClarifaiTest
 				Console.WriteLine("{0}: {1}", (string)jsonResponse.SelectToken("outputs[0].data.concepts[2].name"), (string)jsonResponse.SelectToken("outputs[0].data.concepts[2].value"));
 
 				//Console.WriteLine(jsonResponse.ToString());
-
-				switch ((string)jsonResponse.SelectToken("outputs[0].data.concepts[0].name"))
-				{
-					case "BC Light":
-						return BusyType.Light;
-
-					case "BC Medium":
-						return BusyType.Medium;
-
-					case "BC Heavy":
-						return BusyType.Heavy;
-
-					default:
-						throw new InvalidDataException();
-				}
+				return StringToBusyType((string)jsonResponse.SelectToken("outputs[0].data.concepts[0].name"));
 			}
 		}
 
@@ -112,21 +134,7 @@ namespace ClarifaiTest
 
 				string encodedData = Convert.ToBase64String(image.ToArray());
 
-				string concept = "";
-				switch (type)
-				{
-					case BusyType.Light:
-						concept = "BC Light";
-						break;
-
-					case BusyType.Medium:
-						concept = "BC Medium";
-						break;
-
-					case BusyType.Heavy:
-						concept = "BC Heavy";
-						break;
-				}
+				string concept = BusyTypeToString(type);
 
 				// The JSON to send in the request that contains the encoded image data
 				// Read the docs for more information - https://developer.clarifai.com/guide/predict#predict
