@@ -18,6 +18,7 @@ namespace ClarifaiTest
 		static VideoCaptureDevice videoSource = null;
 		static System.Drawing.Bitmap lastBitmap = new System.Drawing.Bitmap(1, 1);
 		static object bitmapLock = new object();
+		static bool shutdown = false;
 
 		private static MemoryStream CaptureCamera()
 		{
@@ -61,6 +62,31 @@ namespace ClarifaiTest
 			}
 		}
 
+		static public async void TagFilesContinuous()
+		{
+			Console.WriteLine("Continous Capture Active");
+
+			while (true)
+			{
+				if (Program.shutdown)
+					return;
+
+				Console.WriteLine("Tagging Image");
+				var image = CaptureCamera();
+
+				try
+				{
+					var busyType = ClarifaiImage.ClarifaiTaggingFromStream(image);
+					Console.WriteLine("Image tagged as {0}", busyType.ToString());
+				}
+				catch (InvalidDataException)
+				{
+				}
+
+				await Task.Delay(5000);
+			}
+		}
+
 		static void Main(string[] args)
 		{
 			//Connect to the camera
@@ -76,21 +102,27 @@ namespace ClarifaiTest
 			videoSource.SnapshotResolution = videoSource.SnapshotCapabilities[0];
 			videoSource.Start();
 
+			Task continuousCaptureTask = null;
+
 			while(true)
 			{
 				Console.WriteLine("1. Add Image");
 				Console.WriteLine("2. Tag Image");
+				Console.WriteLine("3. Continuously Tag Images");
 				Console.WriteLine("0. Exit");
 
 				var option = Console.ReadLine();
 
 				if (option == "0")
 				{
+					Program.shutdown = true;
+
+					if (continuousCaptureTask != null)
+						continuousCaptureTask.Wait();
+
 					videoSource.Stop();
 					return;
 				}
-
-				var image = CaptureCamera();
 
 				switch(option)
 				{
@@ -121,12 +153,16 @@ namespace ClarifaiTest
 									continue;
 							}
 
+							var image = CaptureCamera();
+
 							ClarifaiImage.ClarifaiTrainFromStream(image, busyType);
 						}
 						break;
 
 					case "2":
 						{
+							var image = CaptureCamera();
+
 							try
 							{
 								var busyType = ClarifaiImage.ClarifaiTaggingFromStream(image);
@@ -136,6 +172,10 @@ namespace ClarifaiTest
 							{
 							}
 						}
+						break;
+
+					case "3":
+						continuousCaptureTask = Task.Run(() => TagFilesContinuous());
 						break;
 				}
 			}
