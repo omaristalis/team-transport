@@ -22,13 +22,13 @@ namespace ClarifaiTest
 		{
 			switch (type)
 			{
-				case "Hilt Light":
+				case "BC Light":
 					return BusyType.Light;
 
-				case "Hilt Medium":
+				case "BC Medium":
 					return BusyType.Medium;
 
-				case "Hilt Heavy":
+				case "BC Heavy":
 					return BusyType.Heavy;
 
 				default:
@@ -41,13 +41,13 @@ namespace ClarifaiTest
 			switch (type)
 			{
 				case BusyType.Light:
-					return "Hilt Light";
+					return "BC Light";
 
 				case BusyType.Medium:
-					return "Hilt Medium";
+					return "BC Medium";
 
 				case BusyType.Heavy:
-					return "Hilt Heavy";
+					return "BC Heavy";
 
 				default:
 					throw new ArgumentException();
@@ -71,7 +71,7 @@ namespace ClarifaiTest
 		public static BusyType ClarifaiTaggingFromStream(MemoryStream image)
 		{
 			string ACCESS_TOKEN = ConfigurationManager.AppSettings["apiKey"];
-			const string CLARIFAI_API_URL = "https://api.clarifai.com/v2/models/Hilt%20Carriage/outputs";
+			const string CLARIFAI_API_URL = "https://api.clarifai.com/v2/models/BC%20Carriage/outputs";
 
 			using (HttpClient client = new HttpClient())
 			{
